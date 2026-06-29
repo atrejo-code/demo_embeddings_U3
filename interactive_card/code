@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Card — Alien Joke</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Geist', sans-serif;
+      background: #ffffff;
+      color: #1a1a1a;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+
+    /* ── Split layout ── */
+    .split {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      margin: 12px;
+    }
+
+    /* ── Output panel (left, 30%) ── */
+    .output-panel {
+      width: 40%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #ffffff;
+      border-right: 1px solid #e0e0e0;
+      flex-shrink: 0;
+    }
+
+    /* ── Code panel (right, 70%) ── */
+    .code-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 1rem;
+      height: 34px;
+      background: #f5f5f5;
+      border-bottom: 1px solid #e0e0e0;
+      flex-shrink: 0;
+    }
+
+    .panel-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .panel-label.code   { color: #5865f2; }
+    .panel-label.output { color: #16a34a; }
+
+    /* ── Canvas area ── */
+    .canvas-wrap {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 1rem;
+      overflow: hidden;
+    }
+
+    canvas {
+      border-radius: 4px;
+      max-width: 100%;
+      max-height: 100%;
+      width: 100%;
+      height: auto;
+    }
+
+    /* ── Code scroll ── */
+    .code-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      background: #fafafa;
+    }
+
+    .code-body {
+      display: table;
+      width: 100%;
+      border-spacing: 0;
+    }
+
+    .code-line { display: table-row; }
+
+    .line-num {
+      display: table-cell;
+      width: 32px;
+      padding-right: 1rem;
+      text-align: right;
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.78rem;
+      color: #bbb;
+      user-select: none;
+      vertical-align: top;
+      padding-top: 1px;
+    }
+
+    .line-code {
+      display: table-cell;
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.78rem;
+      line-height: 1.7;
+      white-space: pre;
+      color: #333;
+      vertical-align: top;
+    }
+
+    /* Light mode syntax colours */
+    .kw  { color: #7c3aed; }
+    .fn  { color: #1d4ed8; }
+    .str { color: #15803d; }
+    .num { color: #c2410c; }
+    .cmt { color: #9ca3af; font-style: italic; }
+    .var { color: #b45309; }
+  </style>
+</head>
+<body>
+
+<h1 class="sr-only">Interactive Card project viewer. The left panel shows the live rendered output. The right panel shows the read-only Game Lab code.</h1>
+
+<div class="split">
+
+  <!-- Output panel (left, 30%) -->
+  <div class="output-panel" role="region" aria-label="Live output — rendered scene">
+    <div class="panel-header" aria-hidden="true">
+      <span class="panel-label output">output</span>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="c" aria-label="Rendered alien joke scene: dark blue space background with yellow sun, two planets, two alien sprites, and the text: What kind of music do planets sing? Neptunes!"></canvas>
+    </div>
+  </div>
+
+  <!-- Code panel (right, 70%) -->
+  <div class="code-panel" role="region" aria-label="Code panel — read only">
+    <div class="panel-header" aria-hidden="true">
+      <span class="panel-label code">code</span>
+    </div>
+    <div class="code-scroll" tabindex="0" aria-label="Game Lab source code">
+      <div class="code-body" role="code" aria-label="Game Lab source code">
+
+        <div class="code-line"><span class="line-num">1</span><span class="line-code"><span class="cmt">// Create alien sprites and assign animations</span></span></div>
+        <div class="code-line"><span class="line-num">2</span><span class="line-code"><span class="kw">var</span> <span class="var">alienBlue</span> = <span class="fn">createSprite</span>(<span class="num">100</span>, <span class="num">200</span>);</span></div>
+        <div class="code-line"><span class="line-num">3</span><span class="line-code"><span class="var">alienBlue</span>.<span class="fn">setAnimation</span>(<span class="str">"alienBlue"</span>);</span></div>
+        <div class="code-line"><span class="line-num">4</span><span class="line-code"><span class="var">alienBlue</span>.rotation = <span class="num">15</span>;</span></div>
+        <div class="code-line"><span class="line-num">5</span><span class="line-code"></span></div>
+        <div class="code-line"><span class="line-num">6</span><span class="line-code"><span class="kw">var</span> <span class="var">alienGreen</span> = <span class="fn">createSprite</span>(<span class="num">250</span>, <span class="num">275</span>);</span></div>
+        <div class="code-line"><span class="line-num">7</span><span class="line-code"><span class="var">alienGreen</span>.<span class="fn">setAnimation</span>(<span class="str">"alienGreen"</span>);</span></div>
+        <div class="code-line"><span class="line-num">8</span><span class="line-code"><span class="var">alienGreen</span>.rotation = <span class="num">-15</span>;</span></div>
+        <div class="code-line"><span class="line-num">9</span><span class="line-code"></span></div>
+        <div class="code-line"><span class="line-num">10</span><span class="line-code"><span class="cmt">// Draw space background and planets</span></span></div>
+        <div class="code-line"><span class="line-num">11</span><span class="line-code"><span class="fn">background</span>(<span class="str">"darkblue"</span>);</span></div>
+        <div class="code-line"><span class="line-num">12</span><span class="line-code"><span class="fn">noStroke</span>();</span></div>
+        <div class="code-line"><span class="line-num">13</span><span class="line-code"></span></div>
+        <div class="code-line"><span class="line-num">14</span><span class="line-code"><span class="fn">fill</span>(<span class="str">"yellow"</span>);</span></div>
+        <div class="code-line"><span class="line-num">15</span><span class="line-code"><span class="fn">ellipse</span>(<span class="num">375</span>, <span class="num">-50</span>, <span class="num">300</span>, <span class="num">300</span>);</span></div>
+        <div class="code-line"><span class="line-num">16</span><span class="line-code"></span></div>
+        <div class="code-line"><span class="line-num">17</span><span class="line-code"><span class="fn">fill</span>(<span class="str">"darkgreen"</span>);</span></div>
+        <div class="code-line"><span class="line-num">18</span><span class="line-code"><span class="fn">ellipse</span>(<span class="num">125</span>, <span class="num">75</span>, <span class="num">100</span>, <span class="num">100</span>);</span></div>
+        <div class="code-line"><span class="line-num">19</span><span class="line-code"></span></div>
+        <div class="code-line"><span class="line-num">20</span><span class="line-code"><span class="fn">fill</span>(<span class="str">"blue"</span>);</span></div>
+        <div class="code-line"><span class="line-num">21</span><span class="line-code"><span class="fn">ellipse</span>(<span class="num">350</span>, <span class="num">350</span>, <span class="num">150</span>, <span class="num">150</span>);</span></div>
+        <div class="code-line"><span class="line-num">22</span><span class="line-code"></span></div>
+        <div class="code-line"><span class="line-num">23</span><span class="line-code"><span class="cmt">// Add joke text</span></span></div>
+        <div class="code-line"><span class="line-num">24</span><span class="line-code"><span class="fn">fill</span>(<span class="str">"white"</span>);</span></div>
+        <div class="code-line"><span class="line-num">25</span><span class="line-code"><span class="fn">textSize</span>(<span class="num">20</span>);</span></div>
+        <div class="code-line"><span class="line-num">26</span><span class="line-code"><span class="fn">text</span>(<span class="str">"What kind of music do planets sing?"</span>, <span class="num">25</span>, <span class="num">125</span>);</span></div>
+        <div class="code-line"><span class="line-num">27</span><span class="line-code"><span class="fn">text</span>(<span class="str">"Neptunes!"</span>, <span class="num">200</span>, <span class="num">200</span>);</span></div>
+        <div class="code-line"><span class="line-num">28</span><span class="line-code"></span></div>
+        <div class="code-line"><span class="line-num">29</span><span class="line-code"><span class="fn">drawSprites</span>();</span></div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const W = 400, H = 400;
+  const BLUE_IMG  = "https://images.code.org/3620f0505297bfc382c002e343e0fbf2-image-1782764700620.23.10_PM-removebg-preview.png";
+  const GREEN_IMG = "https://images.code.org/5ee0d8806cfc050b15cbf3ced772412d-image-1782764700611.24.26_PM-removebg-preview.png";
+
+  const canvas = document.getElementById('c');
+  canvas.width  = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  function loadImg(src) {
+    return new Promise(resolve => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload  = () => resolve(img);
+      img.onerror = () => resolve(null);
+      img.src = src;
+    });
+  }
+
+  function drawRotatedImage(img, x, y, size, angleDeg) {
+    if (!img) return;
+    const rad = angleDeg * Math.PI / 180;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rad);
+    ctx.drawImage(img, -size / 2, -size / 2, size, size);
+    ctx.restore();
+  }
+
+  function drawScene(blueImg, greenImg) {
+    ctx.fillStyle = 'darkblue';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.fillStyle = 'yellow';
+    ctx.beginPath();
+    ctx.ellipse(375, -50, 150, 150, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = 'darkgreen';
+    ctx.beginPath();
+    ctx.ellipse(125, 75, 50, 50, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = 'blue';
+    ctx.beginPath();
+    ctx.ellipse(350, 350, 75, 75, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = 'white';
+    ctx.font = '16px Verdana, sans-serif';
+    ctx.fillText('What kind of music do planets sing?', 25, 125);
+    ctx.fillText('Neptunes!', 200, 200);
+
+    drawRotatedImage(blueImg,  100, 200, 90,  15);
+    drawRotatedImage(greenImg, 250, 275, 90, -15);
+  }
+
+  Promise.all([loadImg(BLUE_IMG), loadImg(GREEN_IMG)]).then(([b, g]) => {
+    drawScene(b, g);
+  });
+</script>
+
+</body>
+</html>
