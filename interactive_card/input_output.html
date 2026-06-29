@@ -19,13 +19,13 @@
       overflow: hidden;
     }
 
+    /* Visually hidden but available to screen readers */
     .sr-only {
       position: absolute; width: 1px; height: 1px;
       padding: 0; margin: -1px; overflow: hidden;
       clip: rect(0,0,0,0); white-space: nowrap; border: 0;
     }
 
-    /* ── Split layout ── */
     .split {
       display: flex;
       flex: 1;
@@ -35,7 +35,7 @@
       margin: 12px;
     }
 
-    /* ── Output panel (left, 30%) ── */
+    /* Output panel — left, 40% */
     .output-panel {
       width: 40%;
       display: flex;
@@ -46,7 +46,7 @@
       flex-shrink: 0;
     }
 
-    /* ── Code panel (right, 70%) ── */
+    /* Code panel — right, 60% */
     .code-panel {
       flex: 1;
       display: flex;
@@ -65,17 +65,19 @@
       flex-shrink: 0;
     }
 
-    .panel-label {
+    /* Panel headings styled to match the label look but semantically h2 */
+    .panel-heading {
       font-size: 0.72rem;
       font-weight: 600;
       letter-spacing: 0.08em;
       text-transform: uppercase;
+      margin: 0;
     }
 
-    .panel-label.code   { color: #5865f2; }
-    .panel-label.output { color: #16a34a; }
+    .panel-heading.code   { color: #5865f2; }
+    .panel-heading.output { color: #16a34a; }
 
-    /* ── Canvas area ── */
+    /* Canvas area */
     .canvas-wrap {
       flex: 1;
       display: flex;
@@ -93,7 +95,7 @@
       height: auto;
     }
 
-    /* ── Code scroll ── */
+    /* Code scroll */
     .code-scroll {
       flex: 1;
       overflow-y: auto;
@@ -101,38 +103,34 @@
       background: #fafafa;
     }
 
-    .code-body {
-      display: table;
-      width: 100%;
-      border-spacing: 0;
-    }
-
-    .code-line { display: table-row; }
-
-    .line-num {
-      display: table-cell;
-      width: 32px;
-      padding-right: 1rem;
-      text-align: right;
-      font-family: 'Geist Mono', monospace;
-      font-size: 0.78rem;
-      color: #bbb;
-      user-select: none;
-      vertical-align: top;
-      padding-top: 1px;
-    }
-
-    .line-code {
-      display: table-cell;
+    /* Use a real <pre><code> for semantics — screen readers understand this */
+    pre {
+      margin: 0;
       font-family: 'Geist Mono', monospace;
       font-size: 0.78rem;
       line-height: 1.7;
       white-space: pre;
       color: #333;
-      vertical-align: top;
+      counter-reset: line;
     }
 
-    /* Light mode syntax colours */
+    /* Line number gutter via CSS counter — hidden from screen readers */
+    .code-line {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .line-num {
+      min-width: 24px;
+      text-align: right;
+      color: #bbb;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .line-content { flex: 1; }
+
+    /* Syntax colours */
     .kw  { color: #7c3aed; }
     .fn  { color: #1d4ed8; }
     .str { color: #15803d; }
@@ -143,61 +141,93 @@
 </head>
 <body>
 
-<h1 class="sr-only">Interactive Card project viewer. The left panel shows the live rendered output. The right panel shows the read-only Game Lab code.</h1>
+<!--
+  Page-level heading orients screen reader users immediately.
+  Describes both panels and what to expect.
+-->
+<h1 class="sr-only">
+  Interactive Card project: Alien Joke. This page has two panels.
+  On the left is the rendered output — a captioned scene showing two aliens in space with a joke.
+  On the right is the read-only source code that produced it, written in Game Lab JavaScript.
+</h1>
 
 <div class="split">
 
-  <!-- Output panel (left, 30%) -->
-  <div class="output-panel" role="region" aria-label="Live output — rendered scene">
-    <div class="panel-header" aria-hidden="true">
-      <span class="panel-label output">output</span>
+  <!-- ── Output panel ── -->
+  <section class="output-panel" aria-labelledby="output-heading">
+    <div class="panel-header">
+      <h2 class="panel-heading output" id="output-heading">Output</h2>
     </div>
     <div class="canvas-wrap">
-      <canvas id="c" aria-label="Rendered alien joke scene: dark blue space background with yellow sun, two planets, two alien sprites, and the text: What kind of music do planets sing? Neptunes!"></canvas>
+      <!--
+        role="img" tells screen readers this is a meaningful graphic.
+        aria-label gives a full text description of what's rendered on the canvas,
+        including the joke punchline, so the content is fully accessible.
+      -->
+      <canvas
+        id="c"
+        role="img"
+        aria-label="Rendered scene: A dark blue space background. A large yellow sun is partially visible in the top right corner. A dark green planet sits in the upper left, and a blue planet in the lower right. A blue alien sprite is tilted 15 degrees to the right near the left side. A green alien sprite is tilted 15 degrees to the left in the center. White text reads: What kind of music do planets sing? Neptunes!">
+      </canvas>
     </div>
-  </div>
+  </section>
 
-  <!-- Code panel (right, 70%) -->
-  <div class="code-panel" role="region" aria-label="Code panel — read only">
-    <div class="panel-header" aria-hidden="true">
-      <span class="panel-label code">code</span>
+  <!-- ── Code panel ── -->
+  <section class="code-panel" aria-labelledby="code-heading">
+    <div class="panel-header">
+      <h2 class="panel-heading code" id="code-heading">Code</h2>
     </div>
-    <div class="code-scroll" tabindex="0" aria-label="Game Lab source code">
-      <div class="code-body" role="code" aria-label="Game Lab source code">
 
-        <div class="code-line"><span class="line-num">1</span><span class="line-code"><span class="cmt">// Create alien sprites and assign animations</span></span></div>
-        <div class="code-line"><span class="line-num">2</span><span class="line-code"><span class="kw">var</span> <span class="var">alienBlue</span> = <span class="fn">createSprite</span>(<span class="num">100</span>, <span class="num">200</span>);</span></div>
-        <div class="code-line"><span class="line-num">3</span><span class="line-code"><span class="var">alienBlue</span>.<span class="fn">setAnimation</span>(<span class="str">"alienBlue"</span>);</span></div>
-        <div class="code-line"><span class="line-num">4</span><span class="line-code"><span class="var">alienBlue</span>.rotation = <span class="num">15</span>;</span></div>
-        <div class="code-line"><span class="line-num">5</span><span class="line-code"></span></div>
-        <div class="code-line"><span class="line-num">6</span><span class="line-code"><span class="kw">var</span> <span class="var">alienGreen</span> = <span class="fn">createSprite</span>(<span class="num">250</span>, <span class="num">275</span>);</span></div>
-        <div class="code-line"><span class="line-num">7</span><span class="line-code"><span class="var">alienGreen</span>.<span class="fn">setAnimation</span>(<span class="str">"alienGreen"</span>);</span></div>
-        <div class="code-line"><span class="line-num">8</span><span class="line-code"><span class="var">alienGreen</span>.rotation = <span class="num">-15</span>;</span></div>
-        <div class="code-line"><span class="line-num">9</span><span class="line-code"></span></div>
-        <div class="code-line"><span class="line-num">10</span><span class="line-code"><span class="cmt">// Draw space background and planets</span></span></div>
-        <div class="code-line"><span class="line-num">11</span><span class="line-code"><span class="fn">background</span>(<span class="str">"darkblue"</span>);</span></div>
-        <div class="code-line"><span class="line-num">12</span><span class="line-code"><span class="fn">noStroke</span>();</span></div>
-        <div class="code-line"><span class="line-num">13</span><span class="line-code"></span></div>
-        <div class="code-line"><span class="line-num">14</span><span class="line-code"><span class="fn">fill</span>(<span class="str">"yellow"</span>);</span></div>
-        <div class="code-line"><span class="line-num">15</span><span class="line-code"><span class="fn">ellipse</span>(<span class="num">375</span>, <span class="num">-50</span>, <span class="num">300</span>, <span class="num">300</span>);</span></div>
-        <div class="code-line"><span class="line-num">16</span><span class="line-code"></span></div>
-        <div class="code-line"><span class="line-num">17</span><span class="line-code"><span class="fn">fill</span>(<span class="str">"darkgreen"</span>);</span></div>
-        <div class="code-line"><span class="line-num">18</span><span class="line-code"><span class="fn">ellipse</span>(<span class="num">125</span>, <span class="num">75</span>, <span class="num">100</span>, <span class="num">100</span>);</span></div>
-        <div class="code-line"><span class="line-num">19</span><span class="line-code"></span></div>
-        <div class="code-line"><span class="line-num">20</span><span class="line-code"><span class="fn">fill</span>(<span class="str">"blue"</span>);</span></div>
-        <div class="code-line"><span class="line-num">21</span><span class="line-code"><span class="fn">ellipse</span>(<span class="num">350</span>, <span class="num">350</span>, <span class="num">150</span>, <span class="num">150</span>);</span></div>
-        <div class="code-line"><span class="line-num">22</span><span class="line-code"></span></div>
-        <div class="code-line"><span class="line-num">23</span><span class="line-code"><span class="cmt">// Add joke text</span></span></div>
-        <div class="code-line"><span class="line-num">24</span><span class="line-code"><span class="fn">fill</span>(<span class="str">"white"</span>);</span></div>
-        <div class="code-line"><span class="line-num">25</span><span class="line-code"><span class="fn">textSize</span>(<span class="num">20</span>);</span></div>
-        <div class="code-line"><span class="line-num">26</span><span class="line-code"><span class="fn">text</span>(<span class="str">"What kind of music do planets sing?"</span>, <span class="num">25</span>, <span class="num">125</span>);</span></div>
-        <div class="code-line"><span class="line-num">27</span><span class="line-code"><span class="fn">text</span>(<span class="str">"Neptunes!"</span>, <span class="num">200</span>, <span class="num">200</span>);</span></div>
-        <div class="code-line"><span class="line-num">28</span><span class="line-code"></span></div>
-        <div class="code-line"><span class="line-num">29</span><span class="line-code"><span class="fn">drawSprites</span>();</span></div>
+    <!--
+      tabindex="0" allows keyboard users to focus and scroll this region.
+      aria-label clarifies this is read-only so screen reader users
+      don't expect to be able to edit.
+    -->
+    <div class="code-scroll" tabindex="0" aria-label="Read-only Game Lab source code. 29 lines.">
 
-      </div>
+      <!--
+        <pre><code> is the correct semantic element for code.
+        Screen readers announce it as a code block.
+        aria-label on <code> gives context about the language.
+
+        Line numbers are in aria-hidden spans so they don't
+        interrupt the code being read aloud — screen reader users
+        hear clean code, not "1 var 2 alienBlue...".
+      -->
+      <pre><code aria-label="Game Lab JavaScript source code">
+<div class="code-line"><span class="line-num" aria-hidden="true">1</span><span class="line-content"><span class="cmt">// Create alien sprites and assign animations</span></span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">2</span><span class="line-content"><span class="kw">var</span> <span class="var">alienBlue</span> = <span class="fn">createSprite</span>(<span class="num">100</span>, <span class="num">200</span>);</span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">3</span><span class="line-content"><span class="var">alienBlue</span>.<span class="fn">setAnimation</span>(<span class="str">"alienBlue"</span>);</span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">4</span><span class="line-content"><span class="var">alienBlue</span>.rotation = <span class="num">15</span>;</span></div>
+<div class="code-line" aria-hidden="true"><span class="line-num">5</span><span class="line-content"> </span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">6</span><span class="line-content"><span class="kw">var</span> <span class="var">alienGreen</span> = <span class="fn">createSprite</span>(<span class="num">250</span>, <span class="num">275</span>);</span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">7</span><span class="line-content"><span class="var">alienGreen</span>.<span class="fn">setAnimation</span>(<span class="str">"alienGreen"</span>);</span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">8</span><span class="line-content"><span class="var">alienGreen</span>.rotation = <span class="num">-15</span>;</span></div>
+<div class="code-line" aria-hidden="true"><span class="line-num">9</span><span class="line-content"> </span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">10</span><span class="line-content"><span class="cmt">// Draw space background and planets</span></span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">11</span><span class="line-content"><span class="fn">background</span>(<span class="str">"darkblue"</span>);</span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">12</span><span class="line-content"><span class="fn">noStroke</span>();</span></div>
+<div class="code-line" aria-hidden="true"><span class="line-num">13</span><span class="line-content"> </span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">14</span><span class="line-content"><span class="fn">fill</span>(<span class="str">"yellow"</span>);</span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">15</span><span class="line-content"><span class="fn">ellipse</span>(<span class="num">375</span>, <span class="num">-50</span>, <span class="num">300</span>, <span class="num">300</span>);</span></div>
+<div class="code-line" aria-hidden="true"><span class="line-num">16</span><span class="line-content"> </span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">17</span><span class="line-content"><span class="fn">fill</span>(<span class="str">"darkgreen"</span>);</span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">18</span><span class="line-content"><span class="fn">ellipse</span>(<span class="num">125</span>, <span class="num">75</span>, <span class="num">100</span>, <span class="num">100</span>);</span></div>
+<div class="code-line" aria-hidden="true"><span class="line-num">19</span><span class="line-content"> </span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">20</span><span class="line-content"><span class="fn">fill</span>(<span class="str">"blue"</span>);</span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">21</span><span class="line-content"><span class="fn">ellipse</span>(<span class="num">350</span>, <span class="num">350</span>, <span class="num">150</span>, <span class="num">150</span>);</span></div>
+<div class="code-line" aria-hidden="true"><span class="line-num">22</span><span class="line-content"> </span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">23</span><span class="line-content"><span class="cmt">// Add joke text</span></span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">24</span><span class="line-content"><span class="fn">fill</span>(<span class="str">"white"</span>);</span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">25</span><span class="line-content"><span class="fn">textSize</span>(<span class="num">20</span>);</span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">26</span><span class="line-content"><span class="fn">text</span>(<span class="str">"What kind of music do planets sing?"</span>, <span class="num">25</span>, <span class="num">125</span>);</span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">27</span><span class="line-content"><span class="fn">text</span>(<span class="str">"Neptunes!"</span>, <span class="num">200</span>, <span class="num">200</span>);</span></div>
+<div class="code-line" aria-hidden="true"><span class="line-num">28</span><span class="line-content"> </span></div>
+<div class="code-line"><span class="line-num" aria-hidden="true">29</span><span class="line-content"><span class="fn">drawSprites</span>();</span></div>
+      </code></pre>
+
     </div>
-  </div>
+  </section>
 
 </div>
 
